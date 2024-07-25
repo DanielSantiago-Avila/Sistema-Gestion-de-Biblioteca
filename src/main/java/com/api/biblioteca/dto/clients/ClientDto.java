@@ -1,10 +1,23 @@
 package com.api.biblioteca.dto.clients;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+
 public class ClientDto {
+
     private Long id;
+
+    @NotBlank(message = "Name cannot be blank")
     private String name;
+
+    @NotBlank(message = "Last name cannot be blank")
     private String last_name;
+
+    @NotBlank(message = "Email cannot be blank")
+    @Email(message = "Email should be valid")
     private String email;
+
+    @NotBlank(message = "Phone number cannot be blank")
     private String phoneNumber;
 
     public ClientDto(Long id, String name, String last_name, String email, String phoneNumber) {
