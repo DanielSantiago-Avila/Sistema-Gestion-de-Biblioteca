@@ -65,20 +65,25 @@ public class ClientServiceMap implements ClientService {
     public ClientDto update(ClientDto client, Long id) {
         validateClientDto(client);
 
-        Optional<ClientPostEntity> existingUser = clientRepository.findByEmail(client.getEmail());
+        // Encuentra el cliente actual por ID
+        ClientPostEntity currentEntity = this.clientRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException(id));
 
-        if (existingUser.isPresent()) {
-            throw new IllegalArgumentException("email already exists");
+        // Solo realiza la validación del email si es diferente al actual
+        if (!currentEntity.getEmail().equals(client.getEmail())) {
+            Optional<ClientPostEntity> existingUser = clientRepository.findByEmail(client.getEmail());
+
+            if (existingUser.isPresent()) {
+                throw new IllegalArgumentException("Email already exists");
+            }
         }
 
         try {
-            ClientPostEntity entity = this.clientRepository.findById(id)
-                    .orElseThrow(() -> new UserNotFoundException(id));
-            entity.setName(client.getName());
-            entity.setLastName(client.getLast_name());
-            entity.setEmail(client.getEmail());
-            entity.setPhoneNumber(client.getPhoneNumber());
-            ClientPostEntity entitySaved = this.clientRepository.save(entity);
+            currentEntity.setName(client.getName());
+            currentEntity.setLastName(client.getLast_name());
+            currentEntity.setEmail(client.getEmail());
+            currentEntity.setPhoneNumber(client.getPhoneNumber());
+            ClientPostEntity entitySaved = this.clientRepository.save(currentEntity);
             return this.toDto(entitySaved);
         } catch (UserNotFoundException e) {
             throw e;

@@ -4,8 +4,11 @@ package com.api.biblioteca.service.books;
 import com.api.biblioteca.dto.books.BookDto;
 import com.api.biblioteca.entity.BookPostEntity;
 import com.api.biblioteca.entity.ClientPostEntity;
+import com.api.biblioteca.exception.UserNotFoundException;
 import com.api.biblioteca.repository.BooksPostRepository;
 import com.api.biblioteca.repository.ClientPostRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -46,6 +49,10 @@ public class BookServiceMap implements BookService {
         return toDto(savedBook);
     }
 
+    private static final Logger logger = LoggerFactory.getLogger(BookServiceMap.class);
+
+    // Resto del código
+
     @Override
     public BookDto updateBook(Long id, BookDto bookDto, Long clientId) {
         validateBookDto(bookDto);
@@ -66,12 +73,15 @@ public class BookServiceMap implements BookService {
 
         if (clientId != null) {
             Optional<ClientPostEntity> clientOptional = clientRepository.findById(clientId);
-            if (clientOptional.isEmpty()) {
+            if (clientOptional.isPresent()) {
+                bookEntity.setClient(clientOptional.get());
+                logger.info("Client set: {}", clientOptional.get());
+            } else {
                 throw new IllegalArgumentException("Client not found");
             }
-            bookEntity.setClient(clientOptional.get());
         } else {
             bookEntity.setClient(null);
+            logger.info("Client set to null");
         }
 
         BookPostEntity updatedBook = bookRepository.save(bookEntity);
@@ -79,8 +89,31 @@ public class BookServiceMap implements BookService {
         return toDto(updatedBook);
     }
 
+    @Override
+    public void deleteBookById(Long id) {
+        try {
+            BookPostEntity entity = this.bookRepository.findById(id)
+                    .orElseThrow(() -> new UserNotFoundException(id));
+            this.bookRepository.delete(entity);
+        } catch (UserNotFoundException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to delete client with ID: " + id, e);
+        }
+    }
 
-
+    @Override
+    public Optional<BookDto> getBookById(Long id) {
+        try {
+            BookPostEntity entity = this.bookRepository.findById(id)
+                    .orElseThrow(() -> new UserNotFoundException(id));
+            return Optional.of(toDto(entity));
+        } catch (UserNotFoundException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to fetch client by ID: " + id, e);
+        }
+    }
 
     private BookDto toDto(BookPostEntity entity) {
         String clientName = (entity.getClient() != null) ? entity.getClient().getName() : null;
@@ -122,5 +155,4 @@ public class BookServiceMap implements BookService {
             throw new IllegalArgumentException("Availability cannot be empty");
         }
     }
-
 }

@@ -14,7 +14,7 @@ public class BookDto {
 
     // Constructor
 
-    public BookDto(Long id, String title, String author,String editorial, String isbn, String publishedDate, Double price,String disponibilidad, String clientName) {
+    public BookDto(Long id, String title, String author, String editorial, String isbn, String publishedDate, Double price, String disponibilidad, String clientName) {
         this.id = id;
         this.title = title;
         this.author = author;
@@ -99,5 +99,4 @@ public class BookDto {
     public void setClientName(String clientName) {
         this.clientName = clientName;
     }
-
 }

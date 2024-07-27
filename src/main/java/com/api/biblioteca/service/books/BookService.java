@@ -4,6 +4,7 @@ import com.api.biblioteca.dto.books.BookDto;
 import com.api.biblioteca.dto.clients.ClientDto;
 
 import java.util.List;
+import java.util.Optional;
 
 
 public interface BookService {
@@ -14,4 +15,7 @@ public interface BookService {
 
     BookDto updateBook(Long id, BookDto bookDto, Long clientId);
 
+    void deleteBookById(Long id);
+
+    Optional<BookDto> getBookById(Long id);
 }
