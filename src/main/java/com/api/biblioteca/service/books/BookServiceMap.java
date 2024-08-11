@@ -115,7 +115,7 @@ public class BookServiceMap implements BookService {
         }
     }
 
-    private BookDto toDto(BookPostEntity entity) {
+    public BookDto toDto(BookPostEntity entity) {
         String clientName = (entity.getClient() != null) ? entity.getClient().getName() : null;
         return new BookDto(
                 entity.getId(),
